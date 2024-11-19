@@ -1,0 +1,89 @@
+syntax = "proto3";
+package api.customer;
+
+import "google/protobuf/any.proto";         // Import for Any type
+import "google/protobuf/wrappers.proto";    // Import for StringValue type
+
+// Customer message with necessary fields
+message Customer {
+    string customer_id = 1;  // Unique ID for the customer, serving as the primary key
+    string customer_name = 2;  // Name of the customer for display purposes
+    CustomerConfiguration customer_configuration = 3;  // Customer configuration details
+}
+
+// Configuration details for each customer
+message CustomerConfiguration {
+    string config_option_1 = 1;  // A customizable text option for customer settings
+    bool config_option_2 = 2;    // A true/false setting for enabling or disabling a feature
+    int32 config_option_3 = 3;   // Numeric option for storing values like levels or limits
+    repeated string enabled_features = 4;  // List of features enabled for this customer
+}
+
+// Operation related to customer requests
+message Operation {
+    string operationName = 1;  // Name or ID of the operation
+    Error error = 2;           // Error details, if any
+    OperationStatus status = 3; // Current status of the operation
+    google.protobuf.Any response = 4;  // Response payload (could be customer details, etc.)
+    google.protobuf.Any metadata = 5;  // Additional metadata about the operation
+}
+
+// Error details for the operation
+message Error {
+    string code = 1;  // Error code
+    string message = 2;  // Human-readable error message
+    repeated string details = 3;  // Additional error details
+}
+
+// Enum for operation status
+enum OperationStatus {
+    OPERATION_STATUS_UNSPECIFIED = 0; // Default unspecified status
+    PENDING = 1;  // Operation is pending
+    DONE = 2;     // Operation completed successfully
+    FAILED = 3;   // Operation failed
+}
+
+// Metadata specific to the update operation
+message UpdateCustomerMetadata {
+    string updated_by = 1;  // User or system that performed the update
+    int64 updated_at = 2;   // Timestamp of when the update occurred
+}
+
+// Request message for creating a customer
+message CreateCustomerRequest {
+    Customer customer = 1;  // Customer details for creation
+}
+
+// Response message for creating a customer
+message CreateCustomerResponse {
+    Operation operation = 1;  // Standardized operation response
+}
+
+// Request message for deleting a customer
+message DeleteCustomerRequest {
+    string customer_id = 1;  // Unique identifier for the customer to be deleted
+}
+
+// Response message for the delete operation
+message DeleteCustomerResponse {
+    Operation operation = 1;  // Standardized operation response
+}
+
+// Request message for updating a customer
+message UpdateCustomerRequest {
+    string customer_id = 1;  // Unique identifier for the customer to be updated (this should NOT be updated)
+    Customer customer = 2;   // Updated customer information (does not include customer_id)
+}
+
+// Response message for updating a customer
+message UpdateCustomerResponse {
+    Operation operation = 1;  // Standardized operation response
+}
+
+// Service definition for CustomerService
+service CustomerService {
+    rpc CreateCustomer (CreateCustomerRequest) returns (CreateCustomerResponse);
+    rpc UpdateCustomer (UpdateCustomerRequest) returns (UpdateCustomerResponse);
+    rpc DeleteCustomer (DeleteCustomerRequest) returns (DeleteCustomerResponse);
+    rpc GetCustomer (google.protobuf.StringValue) returns (Customer);
+}
